@@ -1,10 +1,11 @@
 #include "BluetoothControlRx.h"
-//#include "Can_Protocol.h"
-//#include <mcp_can.h> // using mcp_can lib from Seeed Studio
+#include <mcp_can.h>      // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
+#include <mcp_can_dfs.h>  //       (install Library from Arduino, search for "Can-Bus-Shield")
+#include <Can_Protocol.h> // <---- Import from path: elcano/Elcano_C2_LowLevel/Can_Protocol.h
 
 // Core Variables
-receiverData receiverDat;
-//MCP_CAN CAN(49); // chip selection pin for CAN. 53 for mega, 49 for our new low level board
+ReceiverData receiverDat;
+MCP_CAN CAN(49); // chip selection pin for CAN. 53 for mega, 49 for our new low level board
 
 // Utilities variables
 unsigned long currTime = 0;
@@ -19,37 +20,41 @@ char ackBuffer[ACK_LIMIT];
 char dataChar;
 char dividerChar;
 
-void setup()
-{
-//    logger = "ACK@";
-//    logger.toCharArray(ackBuffer, ACK_LIMIT);
+// Pre-declare Functions
+void processComingData();
+void dataParser();
+void ackMessage();
+void sendToCanBus(ReceiverData message) void receiveFromCanBus()
 
+    void setup()
+{
     // Init hardware serial port --> PIN: 0 (RX) | 1 (TX)
     Serial1.begin(UART_BAUDRATE);
-    SerialUSB.begin(UART_BAUDRATE); // Serial Monitor
-
-    if (DEBUG)
-        // wait until SerialUSB initialize
-        while (!SerialUSB)
-            ;
-
-    // Inital CAN bus with 500KBPS baud rate (CAN_500KBPS is the baud rate)
-    //    while (CAN_OK != CAN.begin(CAN_500KBPS))
-    //    {
-    //        if (DEBUG)
-    //        {
-    //            SerialUSB.println("CAN BUS Shield init fail");
-    //            SerialUSB.println("Re-initializing...");
-    //        }
-    //        delay(1000);
-    //    }
 
     if (DEBUG)
     {
-        SerialUSB.println("CAN BUS init ok!");
-        String initMesg = "** RecX Init at " + String(UART_BAUDRATE);
-        SerialUSB.println(initMesg);
+        SerialUSB.begin(UART_BAUDRATE); // Serial Monitor
+        while (!SerialUSB)
+        {
+            // wait until SerialUSB initialize
+        }
+        SerialUSB.println("** RecX Init at " + String(UART_BAUDRATE));
         SerialUSB.println("Setup Complete!");
+    }
+
+    // Inital CAN bus with 500KBPS baud rate (CAN_500KBPS is the baud rate)
+    while (CAN_OK != CAN.begin(CAN_500KBPS))
+    {
+        if (DEBUG)
+        {
+            SerialUSB.println("CAN BUS Shield init fail!!!");
+            SerialUSB.println("Re-initializing...");
+        }
+        delay(100);
+    }
+    if (DEBUG)
+    {
+        SerialUSB.println("CAN BUS Shield init OK!");
     }
 }
 
@@ -64,11 +69,9 @@ void loop()
             String str = "Parsed value: T" + String(receiverDat.turn) + " F" + String(receiverDat.throttle) + " A" + String(receiverDat.autonomous) + " E" + String(receiverDat.ebrake) + " R" + String(receiverDat.reverse) + " @";
             SerialUSB.println(str);
         }
-             transferToCanBus();
-             //    ackMessage();
+        sendToCanBus(receiverDat);
+        receiveFromCanBus();
     }
-
-    
 }
 
 /**
@@ -159,34 +162,117 @@ void dataParser()
     }
 }
 
-// Process the data over the CAN BUS protocal
-void transferToCanBus()
-{
-    if (DEBUG)
-    {
-        SerialUSB.println("Sending data to CAN BUS...");
-    }
-
-    //    CAN.sendMsgBuf(RCDrive_CANID, 0, BUFFER_LIMIT, (char *)&receiverDat); // RCDrive_CANID or RCStatus_CANID i dont know...
-    //    wait(100);
-}
-
 // ACKNOWLEDGE the data received
 void ackMessage()
 {
-    SerialUSB.println();
+    if (DEBUG)
+    {
+        SerialUSB.println();
+    }
+
     if (Serial1.available())
     {
         Serial1.print("ACK");
     }
 }
 
-// Better version of delay() in Arduino Lib
-void wait(long interval)
+// Process the data over the CAN BUS protocal
+// NOTE: This function is not tested yet...
+void sendToCanBus(ReceiverData message)
 {
-    currTime = millis();
-    while (millis() < currTime + interval)
+    if (DEBUG)
     {
-        ; // Wait for "interval" ms to ensure packages are received
+        SerialUSB.println("Sending data to CAN BUS...");
+    }
+
+    // send CAN message to CAN BUS
+    CAN.sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&message);
+    delay(1000); // a proper delay here is necessay, CAN bus need a time to clear the buffer. delay could be 100 minimum
+
+    if (DEBUG)
+    {
+        SerialUSB.println("Messages SENT!");
+    }
+}
+
+// Receive data from the other high/low level board
+// NOTE: This function is not tested yet...
+void receiveFromCanBus()
+{
+    unsigned char len = 0;      // message length
+    unsigned char msgBuffer[8]; //8 Bytes buffer to store CAN message
+    unsigned int canID = 0;
+
+    // Check if received anything
+    if (CAN_MSGAVAIL == CAN.checkReceive())
+    {
+        CAN.readMsgBuf(&len, msgBuffer); // put the data read into buffer and length
+        canID = CAN.getCanId();
+
+        if (canID = HiDrive_CANID) // <--- Change the CAN ID according to where this receiver transmitted the CAN message to.
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("HiDrive_CANID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+        else if (canID == HiStatus_CANID)
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("HiStatus_CANID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+        else if (canID == RCStatus_CANID)
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("RCStatus_CANID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+        else if (canID == LowStatus_CANID)
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("LowStatus_CANID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+        else if (canID == RCDrive_CANID)
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("RCDrive_CANID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+        else if (canID == Actual_CANID)
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("Actual_CANID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+        else
+        {
+            if (DEBUG)
+            {
+                SerialUSB.print("Unexpected CAN ID received: ");
+                SerialUSB.println(canID, HEX);
+            }
+        }
+
+        // Process incoming data (This step should be in the if/else statement above according to each if/else...)
+        int resultFromCanBUS = (unsigned int)(msgBuffer[3] << 24) | (msgBuffer[2] << 16) | (msgBuffer[1] << 8) | (msgBuffer[0]);
+        if (DEBUG)
+        {
+            SerialUSB.print("ACK msg from CAN BUS: ");
+            SerialUSB.println(resultFromCanBUS, DEC);
+            SerialUSB.println("Message received from the CAN BUS! Finished...");
+        }
     }
 }

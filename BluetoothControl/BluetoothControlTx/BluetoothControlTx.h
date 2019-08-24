@@ -23,4 +23,4 @@ typedef struct
     bool ebrake;
     bool autonomous;
     bool reverse; // Future Stuff
-} transmitterData;
+} TransmitterData;
