@@ -10,19 +10,16 @@
                       // WARNING: when true (!0), you must connect USB to allow hardware reset, otherwise
                       // SAMD21 Arduino will do nothing*/
 
-// Data struct of packages being sent
-typedef struct
-{
-    unsigned int throttle;
-    unsigned int turn;
-    bool ebrake;
-    bool autonomous;
-    bool reverse; // Future Stuff
-} receiverData;
-
-#define RCStatus_CANID 0x50
-#define HiStatus_CANID 0x100
-#define LowStatus_CANID 0x200
-#define RCDrive_CANID 0x300
-#define HiDrive_CANID 0x350
-#define Actual_CANID 0x500
+// 32 bits = 4 bytes
+// 8 bits = 1 byte
+typedef union {
+    struct
+    {
+        uint32_t throttle;
+        uint32_t turn;
+        uint8_t ebrake;
+        uint8_t autonomous;
+        uint8_t reverse; // Future Stuff
+    };
+    uint8_t bytes[11]; // The length of this byte buffer is dependded on the struct above
+} ReceiverData;
