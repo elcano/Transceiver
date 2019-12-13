@@ -1,0 +1,12 @@
+Changes from 3.2 to next version 3.3:
+
+MCP 2510 cut and  jumped so that power supply pin is 3.3v, not 5v.
+MCP 2551 does not need a 5v supply. Rcv Radio version will need a 5v rail.
+4 screw pin terminal to CAN.
+Update capacitor values on schematic and txt. 
+Position capacitors closer to their target components.
+Make power and ground lines thicker, add ground plane if possible.
+Sesies resistor for LED: 1K.
+R9 is grounded on both ends, fix.
+GRND renamed properly as slope control. 
+Sync .BRD and .SCH files.
