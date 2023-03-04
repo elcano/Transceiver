@@ -24,22 +24,23 @@ char dividerChar;
 void processComingData();
 void dataParser();
 void ackMessage();
-void sendToCanBus(ReceiverData message) void receiveFromCanBus()
+void sendToCanBus(ReceiverData message); 
+void receiveFromCanBus();
 
-    void setup()
+void setup()
 {
     // Init hardware serial port --> PIN: 0 (RX) | 1 (TX)
     Serial1.begin(UART_BAUDRATE);
 
     if (DEBUG)
     {
-        SerialUSB.begin(UART_BAUDRATE); // Serial Monitor
-        while (!SerialUSB)
+        Serial3.begin(UART_BAUDRATE); // Serial Monitor
+        while (!Serial3)
         {
-            // wait until SerialUSB initialize
+            // wait until Serial3 initialize
         }
-        SerialUSB.println("** RecX Init at " + String(UART_BAUDRATE));
-        SerialUSB.println("Setup Complete!");
+        Serial3.println("** RecX Init at " + String(UART_BAUDRATE));
+        Serial3.println("Setup Complete!");
     }
 
     // Inital CAN bus with 500KBPS baud rate (CAN_500KBPS is the baud rate)
@@ -47,14 +48,14 @@ void sendToCanBus(ReceiverData message) void receiveFromCanBus()
     {
         if (DEBUG)
         {
-            SerialUSB.println("CAN BUS Shield init fail!!!");
-            SerialUSB.println("Re-initializing...");
+            Serial3.println("CAN BUS Shield init fail!!!");
+            Serial3.println("Re-initializing...");
         }
         delay(100);
     }
     if (DEBUG)
     {
-        SerialUSB.println("CAN BUS Shield init OK!");
+        Serial3.println("CAN BUS Shield init OK!");
     }
 }
 
@@ -67,7 +68,7 @@ void loop()
         if (DEBUG)
         {
             String str = "Parsed value: T" + String(receiverDat.turn) + " F" + String(receiverDat.throttle) + " A" + String(receiverDat.autonomous) + " E" + String(receiverDat.ebrake) + " R" + String(receiverDat.reverse) + " @";
-            SerialUSB.println(str);
+            Serial3.println(str);
         }
         sendToCanBus(receiverDat);
         receiveFromCanBus();
@@ -101,21 +102,21 @@ void dataParser()
         {
         case 'T': // Parsing Turn
             if (DEBUG_PARSE)
-                SerialUSB.println("T - " + String(dataChar));
+                Serial3.println("T - " + String(dataChar));
             turnBuffer[turnCounter] = dataChar;
             turnCounter++;
             turnBuffer[turnCounter] = '\0'; // Keep the string NULL terminated
             break;
         case 'F': // Parsing Throttle
             if (DEBUG_PARSE)
-                SerialUSB.println("F - " + String(dataChar));
+                Serial3.println("F - " + String(dataChar));
             throttleBuffer[throttleCounter] = dataChar;
             throttleCounter++;
             throttleBuffer[throttleCounter] = '\0'; // Keep the string NULL terminated
             break;
         case 'A': // Parsing Autonomous
             if (DEBUG_PARSE)
-                SerialUSB.println("A - " + String(dataChar));
+                Serial3.println("A - " + String(dataChar));
             if (dataChar == '1')
                 receiverDat.autonomous = true;
             else
@@ -123,7 +124,7 @@ void dataParser()
             break;
         case 'E': // Parsing Ebrake
             if (DEBUG_PARSE)
-                SerialUSB.println("E - " + String(dataChar));
+                Serial3.println("E - " + String(dataChar));
             if (dataChar == '1')
                 receiverDat.ebrake = true;
             else
@@ -131,7 +132,7 @@ void dataParser()
             break;
         case 'R': // Parsing Reverse
             if (DEBUG_PARSE)
-                SerialUSB.println("R - " + String(dataChar));
+                Serial3.println("R - " + String(dataChar));
             if (dataChar == '1')
                 receiverDat.reverse = true;
             else
@@ -141,7 +142,7 @@ void dataParser()
             if (dataChar == '@')
             {
                 if (DEBUG_PARSE)
-                    SerialUSB.println("EOT - " + String(dataChar));
+                    Serial3.println("EOT - " + String(dataChar));
 
                 // update turn and throttle struct
                 receiverDat.turn = atoi(turnBuffer);
@@ -156,7 +157,7 @@ void dataParser()
             break;
         default:
             if (DEBUG_PARSE)
-                SerialUSB.println("Default - " + String(dataChar));
+                Serial3.println("Default - " + String(dataChar));
             break;
         }
     }
@@ -167,7 +168,7 @@ void ackMessage()
 {
     if (DEBUG)
     {
-        SerialUSB.println();
+        Serial3.println();
     }
 
     if (Serial1.available())
@@ -182,7 +183,7 @@ void sendToCanBus(ReceiverData message)
 {
     if (DEBUG)
     {
-        SerialUSB.println("Sending data to CAN BUS...");
+        Serial3.println("Sending data to CAN BUS...");
     }
 
     // send CAN message to CAN BUS
@@ -191,7 +192,7 @@ void sendToCanBus(ReceiverData message)
 
     if (DEBUG)
     {
-        SerialUSB.println("Messages SENT!");
+        Serial3.println("Messages SENT!");
     }
 }
 
@@ -213,56 +214,56 @@ void receiveFromCanBus()
         {
             if (DEBUG)
             {
-                SerialUSB.print("HiDrive_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("HiDrive_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == HiStatus_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("HiStatus_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("HiStatus_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == RCStatus_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("RCStatus_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("RCStatus_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == LowStatus_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("LowStatus_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("LowStatus_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == RCDrive_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("RCDrive_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("RCDrive_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == Actual_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("Actual_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("Actual_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else
         {
             if (DEBUG)
             {
-                SerialUSB.print("Unexpected CAN ID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("Unexpected CAN ID received: ");
+                Serial3.println(canID, HEX);
             }
         }
 
@@ -270,9 +271,9 @@ void receiveFromCanBus()
         int resultFromCanBUS = (unsigned int)(msgBuffer[3] << 24) | (msgBuffer[2] << 16) | (msgBuffer[1] << 8) | (msgBuffer[0]);
         if (DEBUG)
         {
-            SerialUSB.print("ACK msg from CAN BUS: ");
-            SerialUSB.println(resultFromCanBUS, DEC);
-            SerialUSB.println("Message received from the CAN BUS! Finished...");
+            Serial3.print("ACK msg from CAN BUS: ");
+            Serial3.println(resultFromCanBUS, DEC);
+            Serial3.println("Message received from the CAN BUS! Finished...");
         }
     }
 }

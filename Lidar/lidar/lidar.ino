@@ -113,7 +113,7 @@ void sendToCanBus(Lidar lidarStruct)
     }
 
     // send CAN message to CAN BUS
-    CAN.sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&lidarMSGBuffer);
+    CAN.sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&lidarStruct);
     delay(1000); // This code might not be needed since it is too long for the buffer to be cleared...
 
     Serial.println("Messages SENT!");

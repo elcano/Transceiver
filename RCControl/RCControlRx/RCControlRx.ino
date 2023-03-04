@@ -1,3 +1,11 @@
+
+// #include <can-serial.h>
+// #include <mcp2515_can.h>
+// #include <mcp2515_can_dfs.h>
+// #include <mcp2518fd_can.h>
+// #include <mcp2518fd_can_dfs.h>
+// #include <mcp_can.h>
+
 /*
     --- References and Acknowledgements ---
     Combine and Update RC control code written by Joe Breithaupt from path: elcano/RadioControl/RadioControl.ino
@@ -51,13 +59,13 @@ void setup()
 {
     if (DEBUG)
     {
-        SerialUSB.begin(UART_BAUDRATE);
-        while (!SerialUSB)
+        Serial3.begin(UART_BAUDRATE);
+        while (!Serial3)
         {
-            // wait until SerialUSB initialize
+            // wait until Serial3 initialize
         }
-        SerialUSB.println("** RecX Init at " + String(UART_BAUDRATE));
-        SerialUSB.println("Setup Complete!");
+        Serial3.println("** RecX Init at " + String(UART_BAUDRATE));
+        Serial3.println("Setup Complete!");
     }
 
     // Initialize arrays to hold data coming from the RC
@@ -82,14 +90,14 @@ void setup()
     {
         if (DEBUG)
         {
-            SerialUSB.println("CAN BUS Shield init fail!!!");
-            SerialUSB.println("Re-initializing...");
+            Serial3.println("CAN BUS Shield init fail!!!");
+            Serial3.println("Re-initializing...");
         }
         delay(100);
     }
     if (DEBUG)
     {
-        SerialUSB.println("CAN BUS Shield init OK!");
+        Serial3.println("CAN BUS Shield init OK!");
     }
 }
 
@@ -210,8 +218,8 @@ void debugPacket()
         logger += " -- AUTO: " + String(rc_auto);
         logger += " -- E-BRAKE: " + String(rc_ebrake);
         logger += " -- REVERSE: " + String(rc_reverse);
-        SerialUSB.println();
-        SerialUSB.println(logger);
+        Serial3.println();
+        Serial3.println(logger);
     }
 }
 
@@ -221,7 +229,7 @@ void sendToCanBus(ReceiverData message)
 {
     if (DEBUG)
     {
-        SerialUSB.println("Sending data to CAN BUS...");
+        Serial3.println("Sending data to CAN BUS...");
     }
 
     // send CAN message to CAN BUS
@@ -230,7 +238,7 @@ void sendToCanBus(ReceiverData message)
 
     if (DEBUG)
     {
-        SerialUSB.println("Messages SENT!");
+        Serial3.println("Messages SENT!");
     }
 }
 
@@ -252,56 +260,56 @@ void receiveFromCanBus()
         {
             if (DEBUG)
             {
-                SerialUSB.print("HiDrive_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("HiDrive_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == HiStatus_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("HiStatus_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("HiStatus_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == RCStatus_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("RCStatus_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("RCStatus_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == LowStatus_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("LowStatus_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("LowStatus_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == RCDrive_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("RCDrive_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("RCDrive_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else if (canID == Actual_CANID)
         {
             if (DEBUG)
             {
-                SerialUSB.print("Actual_CANID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("Actual_CANID received: ");
+                Serial3.println(canID, HEX);
             }
         }
         else
         {
             if (DEBUG)
             {
-                SerialUSB.print("Unexpected CAN ID received: ");
-                SerialUSB.println(canID, HEX);
+                Serial3.print("Unexpected CAN ID received: ");
+                Serial3.println(canID, HEX);
             }
         }
 
@@ -309,9 +317,9 @@ void receiveFromCanBus()
         int resultFromCanBUS = (unsigned int)(msgBuffer[3] << 24) | (msgBuffer[2] << 16) | (msgBuffer[1] << 8) | (msgBuffer[0]);
         if (DEBUG)
         {
-            SerialUSB.print("ACK msg from CAN BUS: ");
-            SerialUSB.println(resultFromCanBUS, DEC);
-            SerialUSB.println("Message received from the CAN BUS! Finished...");
+            Serial3.print("ACK msg from CAN BUS: ");
+            Serial3.println(resultFromCanBUS, DEC);
+            Serial3.println("Message received from the CAN BUS! Finished...");
         }
     }
 }
