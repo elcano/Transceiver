@@ -1,11 +1,3 @@
-
-// #include <can-serial.h>
-// #include <mcp2515_can.h>
-// #include <mcp2515_can_dfs.h>
-// #include <mcp2518fd_can.h>
-// #include <mcp2518fd_can_dfs.h>
-// #include <mcp_can.h>
-
 /*
     --- References and Acknowledgements ---
     Combine and Update RC control code written by Joe Breithaupt from path: elcano/RadioControl/RadioControl.ino
@@ -14,12 +6,14 @@
     https://www.sparkfun.com/tutorials/348
 */
 #include "RCControlRX.h"      // <---- Local .h file
-#include <mcp_can.h>          // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
-#include <mcp_can_dfs.h>      //       (install Library from Arduino, search for "Can-Bus-Shield")
+// #include <mcp_can.h>          // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
+// #include <mcp_can_dfs.h>      //       (install Library from Arduino, search for "Can-Bus-Shield")
+#include <mcp2515_can.h>        // <---- Import from library: Seed-Studio/CAN-BUS-Shield
+#include <mcp2515_can_dfs.h>    // <---- Import from library: Seed-Studio/CAN-BUS-Shield
 #include <Can_Protocol.h>     // <---- Import from path: elcano/Elcano_C2_LowLevel/Can_Protocol.h
 #include <SettingsTemplate.h> // <---- Import from path: elcano/libraries/Settings/SettingsTemplate.h
 
-MCP_CAN CAN(CAN_PIN); // chip selection pin for CAN. 53 for mega, 49 for our new low level board
+mcp2515_can CAN(CAN_PIN); // chip selection pin for CAN. 53 for mega, 49 for our new low level board
 
 String logger;
 unsigned long now = 0;
@@ -233,7 +227,7 @@ void sendToCanBus(ReceiverData message)
     }
 
     // send CAN message to CAN BUS
-    CAN.sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&message);
+    CAN.MCP_CAN::sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&message);
     delay(1000); // a proper delay here is necessay, CAN bus need a time to clear the buffer. delay could be 100 minimum
 
     if (DEBUG)

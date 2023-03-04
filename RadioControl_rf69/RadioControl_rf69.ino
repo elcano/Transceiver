@@ -1,16 +1,18 @@
-#include <RH_RF69.h>        // External; documented at http://www.airspayce.com/mikem/arduino/RadioHead/classRH__RF69.html
+#include <RH_RF69.h>        // <---- Import from library as zip folder: http://www.airspayce.com/mikem/arduino/RadioHead/index.html
 #include <SPI.h>
 #include "RadioControl_rf69.h"
 
-#include <mcp_can_dfs.h>    // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
-#include <mcp_can.h>        //       (install Library from Arduino, search for "Can-Bus-Shield")
+// #include <mcp_can_dfs.h>    // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
+// #include <mcp_can.h>        //       (install Library from Arduino, search for "Can-Bus-Shield")
+#include <mcp2515_can.h>        // <---- Import from library: Seed-Studio/CAN-BUS-Shield
+#include <mcp2515_can_dfs.h>    // <---- Import from library: Seed-Studio/CAN-BUS-Shield
 
 #define TRANSMITTER 1       // set false to compile receiver code
 #define DEBUG 1             /*prints debugging info to Serial3, can impact loop time
                             WARNING: when true (!0), you must connect USB to allow hardware reset, otherwise
                             SAMD21 Arduino will do nothing*/
 
-MCP_CAN CAN(3);            // chip selection pin for CAN. 53 for mega, 49 for our new low level board
+mcp2515_can CAN(3);            // chip selection pin for CAN. 53 for mega, 49 for our new low level board
 RH_RF69 driver(SS_PIN, INTERRUPT_PIN);
 
 DataFromTransmitter txData; // sent from transmitter

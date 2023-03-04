@@ -16,8 +16,10 @@
 */
 
 /************************** LEO Added **********************/
-#include <mcp_can.h>      // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
-#include <mcp_can_dfs.h>  //       (install Library from Arduino, search for "Can-Bus-Shield")
+// #include <mcp_can.h>      // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
+// #include <mcp_can_dfs.h>  //       (install Library from Arduino, search for "Can-Bus-Shield")
+#include <mcp2515_can.h>        // <---- Import from library: Seed-Studio/CAN-BUS-Shield
+#include <mcp2515_can_dfs.h>    // <---- Import from library: Seed-Studio/CAN-BUS-Shield
 #include <Can_Protocol.h> // <---- Import from path: elcano/Elcano_C2_LowLevel/Can_Protocol.h
 /*************************** END *****************************/
 
@@ -60,7 +62,7 @@ typedef union {
 
 Lidar lidar;
 
-MCP_CAN CAN(49); // chip selection pin for CAN. 53 for mega, 49 for our new low level board
+mcp2515_can CAN(49); // chip selection pin for CAN. 53 for mega, 49 for our new low level board
 /*************************** LEO END ******************************/
 
 #define DEBUG true // do not use Serial to print any text during scan. Printing too much will cause this code to miss new scans
@@ -113,7 +115,7 @@ void sendToCanBus(Lidar lidarStruct)
     }
 
     // send CAN message to CAN BUS
-    CAN.sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&lidarStruct);
+    CAN.MCP_CAN::sendMsgBuf(Actual_CANID, 0, 8, (uint8_t *)&lidarStruct);
     delay(1000); // This code might not be needed since it is too long for the buffer to be cleared...
 
     Serial.println("Messages SENT!");

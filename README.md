@@ -26,7 +26,7 @@ User interface with joysticks and switches, putting information on CAN bus.
 ### Required libraries:
 
 #### *Seeed-Studio/CAN-BUS-Shield*
-Download as zip from https://github.com/Seeed-Studio/Seeed_Arduino_CAN/tree/old. 
+Download as zip from https://github.com/Seeed-Studio/Seeed_Arduino_CAN. 
 In Arduino IDE, go to Sketch -> Include Library -> Add .ZIP Library and select the .zip folder.
 
 #### *elcano/Elcano_C2_LowLevel/Can_Protocol.h*
@@ -51,17 +51,32 @@ In Arduino IDE, go to Sketch -> Include Library -> Add .ZIP Library and select t
 #### *BluetoothControlRx.ino - Compiles*
 1. All uses of “SerialUSB” have been changed to “Serial3”
 2. Fixed an issue where some semi-colons were missing when pre-declaring functions “sendToCanBus” and “receiveFromCanBus”
+3. Creation of CAN object needs to be of type “mcp2515_can”, not “MCP_CAN”
+4. In sendToCanBus() method, need to reference MCP_CAN when using sendMsgBuff
+5. Need to include “mcp2515_can.h” and “mcp2515_can_dfs.h”
+
 
 #### *BluetoothControlTx.ino - Compiles*
 1. All uses of “SerialUSB” have been changed to “Serial3”
 
 #### *Lidar.ino - Compiles*
 1. All uses of “lidarMSGBuffer” have been changed to “lidarStruct”
+2. Creation of CAN object needs to be of type “mcp2515_can”, not “MCP_CAN”
+3. In sendToCanBus() method, need to reference MCP_CAN when using sendMsgBuff
+4. Need to include “mcp2515_can.h” and “mcp2515_can_dfs.h”
+
 
 #### *RadioControl_rf69.ino - Compiles*
 1. All uses of “SerialUSB” have been changed to “Serial3”
 2. All uses of “analogReadResolution” have been changed to “analogRead”
 3. RH_RF69 has been changed to RC_RF69_H
+4. Creation of CAN object needs to be of type “mcp2515_can”, not “MCP_CAN”
+5. Need to include “mcp2515_can.h” and “mcp2515_can_dfs.h”
 
-#### *RCControlRx.ino - Compiles __(NEED TO CHANGE CAN LIBRARY)__*
+
+#### *RCControlRx.ino - Compiles*
 1. All uses of “SerialUSB” have been changed to “Serial3”
+2. Creation of CAN object needs to be of type “mcp2515_can”, not “MCP_CAN”
+3. In sendToCanBus() method, need to reference MCP_CAN when using sendMsgBuff
+4. Need to include “mcp2515_can.h” and “mcp2515_can_dfs.h”
+
