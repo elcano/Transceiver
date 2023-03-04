@@ -22,3 +22,46 @@ Receiver via Bluetooth.
 Receiver from a hobbyist RC controller
 User interface with joysticks and switches, putting information on CAN bus.
 
+## How to compile:
+### Required libraries:
+
+*Seeed-Studio/CAN-BUS-Shield*
+Download as zip from https://github.com/Seeed-Studio/Seeed_Arduino_CAN/tree/old 
+In Arduino IDE, go to Sketch -> Include Library -> Add .ZIP Library and select the .zip folder
+
+*elcano/Elcano_C2_LowLevel/Can_Protocol.h*
+Download “Can_Protocol.h” from https://github.com/elcano/elcano/tree/master/Elcano_C2_LowLevel
+Create a folder in the location where the Arduino IDE contains it’s libraries on your computer and add this file to the newly created folder.
+
+*http://www.airspayce.com/mikem/arduino/RadioHead/classRH__RF69.html*
+Download as zip from http://www.airspayce.com/mikem/arduino/RadioHead/index.html
+In Arduino IDE, go to Sketch -> Include Library -> Add .ZIP Library and select the .zip folder
+
+*elcano/libraries/Settings/SettingsTemplate.h*
+Download “SettingsTemplate.h” from https://github.com/elcano/elcano/tree/master/Elcano_C2_LowLevel
+Create a folder in the location where the Arduino IDE contains it’s libraries on your computer and add this file to the newly created folder.
+
+*scanse/sweep-arduino/tree/master/Sweep*
+Download as zip from https://github.com/scanse/sweep-arduino 
+Note: need to unzip zip folder and then compress to zip only the sweep folder
+In Arduino IDE, go to Sketch -> Include Library -> Add .ZIP Library and select the .zip folder
+
+## Code edits:
+
+*BluetoothControlRx.ino - Compiles*
+All uses of “SerialUSB” have been changed to “Serial3”
+Fixed an issue where some semi-colons were missing when pre-declaring functions “sendToCanBus” and “receiveFromCanBus”
+
+*BluetoothControlTx.ino - Compiles*
+All uses of “SerialUSB” have been changed to “Serial3”
+
+*Lidar.ino - Compiles*
+All uses of “lidarMSGBuffer” have been changed to “lidarStruct”
+
+*RadioControl_rf69.ino - Compiles*
+All uses of “SerialUSB” have been changed to “Serial3”
+All uses of “analogReadResolution” have been changed to “analogRead”
+RH_RF69 has been changed to RC_RF69_H
+
+*RCControlRx.ino - Compiles __(NEED TO CHANGE CAN LIBRARY)__*
+All uses of “SerialUSB” have been changed to “Serial3”
