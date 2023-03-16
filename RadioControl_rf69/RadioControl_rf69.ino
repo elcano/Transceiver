@@ -1,16 +1,18 @@
-#include <RH_RF69.h>        // External; documented at http://www.airspayce.com/mikem/arduino/RadioHead/classRH__RF69.html
+#include <RH_RF69.h>        // <---- Import from library as zip folder: http://www.airspayce.com/mikem/arduino/RadioHead/index.html
 #include <SPI.h>
 #include "RadioControl_rf69.h"
 
-#include <mcp_can_dfs.h>    // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
-#include <mcp_can.h>        //       (install Library from Arduino, search for "Can-Bus-Shield")
+// #include <mcp_can_dfs.h>    // <---- Import from another library: Seeed-Studio/CAN-BUS-Shield
+// #include <mcp_can.h>        //       (install Library from Arduino, search for "Can-Bus-Shield")
+#include <mcp2515_can.h>        // <---- Import from library: Seed-Studio/CAN-BUS-Shield
+#include <mcp2515_can_dfs.h>    // <---- Import from library: Seed-Studio/CAN-BUS-Shield
 
 #define TRANSMITTER 1       // set false to compile receiver code
-#define DEBUG 1             /*prints debugging info to serialUSB, can impact loop time
+#define DEBUG 1             /*prints debugging info to Serial3, can impact loop time
                             WARNING: when true (!0), you must connect USB to allow hardware reset, otherwise
                             SAMD21 Arduino will do nothing*/
 
-MCP_CAN CAN(3);            // chip selection pin for CAN. 53 for mega, 49 for our new low level board
+mcp2515_can CAN(3);            // chip selection pin for CAN. 53 for mega, 49 for our new low level board
 RH_RF69 driver(SS_PIN, INTERRUPT_PIN);
 
 DataFromTransmitter txData; // sent from transmitter
@@ -30,11 +32,11 @@ void setup()
   pinMode(AUTO_PIN, INPUT_PULLUP);  /* internal pullup keeps values from floating */
   pinMode(EBRAKE_PIN, INPUT_PULLUP);
   pinMode(TX_LED_LINK, OUTPUT);
-  analogReadResolution(12);
-  // SerialUSB connects to serial monitor or tty
-  SerialUSB.begin(UART_BAUDRATE);
+  analogRead(12);
+  // Serial3 connects to serial monitor or tty
+  Serial3.begin(UART_BAUDRATE);
   if (DEBUG)
-    while (!SerialUSB)
+    while (!Serial3)
     {
       ;
     }
@@ -42,7 +44,7 @@ void setup()
   if (!driver.init())
   {
     if (DEBUG)
-      SerialUSB.println("init failed");
+      Serial3.println("init failed");
   }
   else
   {
@@ -54,14 +56,14 @@ void setup()
   
   if (DEBUG)
   {
-    SerialUSB.println("Setup Complete: ");
+    Serial3.println("Setup Complete: ");
     if (TRANSMITTER)
     {
-      SerialUSB.println("transmitter mode");
+      Serial3.println("transmitter mode");
     }
     else
     {
-      SerialUSB.println("receiver mode");
+      Serial3.println("receiver mode");
     }
   }
 
@@ -71,14 +73,14 @@ void setup()
     {
       if (DEBUG)
       {
-        SerialUSB.println("CAN BUS Shield init fail");
-        SerialUSB.println(" Init CAN BUS Shield again");
+        Serial3.println("CAN BUS Shield init fail");
+        Serial3.println(" Init CAN BUS Shield again");
         delay(100);
       }
     }
     if (DEBUG)
     {
-     SerialUSB.println("CAN BUS Shield init OK!");
+     Serial3.println("CAN BUS Shield init OK!");
     }
 }
 
@@ -125,7 +127,7 @@ void txloop()
       timeRecv = millis();
       if (DEBUG)
       {
-        SerialUSB.println(String(rxData.rssi / 2.0));
+        Serial3.println(String(rxData.rssi / 2.0));
       }
 
       unsigned long interval = timeRecv - timeSent;
@@ -146,7 +148,7 @@ void txloop()
       received = false;
       setLights();
       if (DEBUG)
-        SerialUSB.println("!");
+        Serial3.println("!");
     }
   }
   else
@@ -155,7 +157,7 @@ void txloop()
     received = false;
     setLights();
     if (DEBUG)
-      SerialUSB.println("?");
+      Serial3.println("?");
   }
 }
 
@@ -176,7 +178,7 @@ void rxloop()
 
       if (DEBUG) 
       {
-        SerialUSB.println("txData: - Throttle: " + String(txData.throttle) + " - Turn: " + String(txData.turn));
+        Serial3.println("txData: - Throttle: " + String(txData.throttle) + " - Turn: " + String(txData.turn));
       }
       // sendToCanBus(txData); // Send the whole data struct to Can Bus
       // receiveFromCanBus();
@@ -185,14 +187,14 @@ void rxloop()
       {
         printTx(false);
         unsigned long duration = timeRecv - timeSent;
-        SerialUSB.println("," + String(duration));
+        Serial3.println("," + String(duration));
       }
     }
     else
     {
       // payload was the wrong size
       if (DEBUG)
-        SerialUSB.println("!");
+        Serial3.println("!");
     }
   }
 }
@@ -220,13 +222,13 @@ void printTx(bool newline)
   if (newline)
   {
         if (DEBUG) {
-        SerialUSB.println(packet);
+        Serial3.println(packet);
       }
     }
   else
   {
         if (DEBUG) {
-        SerialUSB.print(packet);
+        Serial3.print(packet);
       }
     }
 }
@@ -238,7 +240,7 @@ void printTx(bool newline)
 //{
 //    if (DEBUG)
 //    {
-//        SerialUSB.println("Sending data to CAN BUS...");
+//        Serial3.println("Sending data to CAN BUS...");
 //    }
 //
 //    // send CAN message to CAN BUS
@@ -247,7 +249,7 @@ void printTx(bool newline)
 //
 //    if (DEBUG)
 //    {
-//        SerialUSB.println("Messages SENT!");
+//        Serial3.println("Messages SENT!");
 //    }
 //}
 //
@@ -269,56 +271,56 @@ void printTx(bool newline)
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("HiDrive_CANID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("HiDrive_CANID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //        else if (canID == HiStatus_CANID)
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("HiStatus_CANID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("HiStatus_CANID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //        else if (canID == RCStatus_CANID)
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("RCStatus_CANID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("RCStatus_CANID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //        else if (canID == LowStatus_CANID)
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("LowStatus_CANID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("LowStatus_CANID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //        else if (canID == RCDrive_CANID)
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("RCDrive_CANID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("RCDrive_CANID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //        else if (canID == Actual_CANID)
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("Actual_CANID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("Actual_CANID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //        else
 //        {
 //            if (DEBUG)
 //            {
-//                SerialUSB.print("Unexpected CAN ID received: ");
-//                SerialUSB.println(canID, HEX);
+//                Serial3.print("Unexpected CAN ID received: ");
+//                Serial3.println(canID, HEX);
 //            }
 //        }
 //
@@ -326,9 +328,9 @@ void printTx(bool newline)
 //        int resultFromCanBUS = (unsigned int)(msgBuffer[3] << 24) | (msgBuffer[2] << 16) | (msgBuffer[1] << 8) | (msgBuffer[0]);
 //        if (DEBUG)
 //        {
-//            SerialUSB.print("ACK msg from CAN BUS: ");
-//            SerialUSB.println(resultFromCanBUS, DEC);
-//            SerialUSB.println("Message received from the CAN BUS! Finished...");
+//            Serial3.print("ACK msg from CAN BUS: ");
+//            Serial3.println(resultFromCanBUS, DEC);
+//            Serial3.println("Message received from the CAN BUS! Finished...");
 //        }
 //    }
 //}

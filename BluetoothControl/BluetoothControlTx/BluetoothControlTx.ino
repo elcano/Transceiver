@@ -18,13 +18,13 @@ void setup()
     Serial1.begin(UART_BAUDRATE);
     if (DEBUG)
     {
-        SerialUSB.begin(UART_BAUDRATE); // Serial Monitor
-        while (!SerialUSB)
+        Serial3.begin(UART_BAUDRATE); // Serial Monitor
+        while (!Serial3)
         {
-            // Wait until SerialUSB initialize
+            // Wait until Serial3 initialize
         }
-        SerialUSB.println("** TranX Init at " + String(UART_BAUDRATE));
-        SerialUSB.println("Setup Complete!");
+        Serial3.println("** TranX Init at " + String(UART_BAUDRATE));
+        Serial3.println("Setup Complete!");
     }
 }
 
@@ -42,13 +42,13 @@ void loop()
 
         if (DEBUG)
         {
-            SerialUSB.write(dataBuffer[i]);
+            Serial3.write(dataBuffer[i]);
         }
     }
 
     if (DEBUG)
     {
-        SerialUSB.println();
+        Serial3.println();
     }
     // Read from Bluetooh module and send to Arduino Serial Monitor
     // (Receiving ACK message from the RX)
@@ -60,7 +60,7 @@ void loop()
             ackBuffer[counter] = ackMessage;
             counter++;
             dataBuffer[counter] = '\0'; // Keep the string NULL terminated
-            SerialUSB.print(logger);
+            Serial3.print(logger);
             if (ackMessage == '@')
             {
                 break;
